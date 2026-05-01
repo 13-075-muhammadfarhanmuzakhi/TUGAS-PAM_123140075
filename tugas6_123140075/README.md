@@ -1,95 +1,183 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM), Server.
+# 📰 News Reader App - Tugas Praktikum Minggu 6
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
-
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
-
-* [/server](./server/src/main/kotlin) is for the Ktor server application.
-
-* [/shared](./shared/src) is for the code that will be shared between all targets in the project.
-  The most important subfolder is [commonMain](./shared/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
-
-### Build and Run Android Application
-
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
-
-### Build and Run Desktop (JVM) Application
-
-To build and run the development version of the desktop app, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:run
-  ```
-
-### Build and Run Server
-
-To build and run the development version of the server, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :server:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :server:run
-  ```
-
-### Build and Run Web Application
-
-To build and run the development version of the web app, use the run configuration from the run widget
-in your IDE's toolbar or run it directly from the terminal:
-- for the Wasm target (faster, modern browsers):
-  - on macOS/Linux
-    ```shell
-    ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
-    ```
-  - on Windows
-    ```shell
-    .\gradlew.bat :composeApp:wasmJsBrowserDevelopmentRun
-    ```
-- for the JS target (slower, supports older browsers):
-  - on macOS/Linux
-    ```shell
-    ./gradlew :composeApp:jsBrowserDevelopmentRun
-    ```
-  - on Windows
-    ```shell
-    .\gradlew.bat :composeApp:jsBrowserDevelopmentRun
-    ```
-
-### Build and Run iOS Application
-
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+**Nama:** Muhammad Farhan Muzakhi
+**NIM:** 123140075  
+**Mata Kuliah:** Pengembangan Aplikasi Mobile  
 
 ---
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
-[Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform/#compose-multiplatform),
-[Kotlin/Wasm](https://kotl.in/wasm/)…
+## 📋 Deskripsi Aplikasi
 
-We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
-If you face any issues, please report them on [YouTrack](https://youtrack.jetbrains.com/newIssue?project=CMP).
+Aplikasi **News Reader** berbasis **Kotlin Multiplatform + Compose Desktop** yang menampilkan daftar berita dari public API. Aplikasi ini dibuat sebagai tugas praktikum minggu ke-6 dengan topik Networking dan REST API menggunakan Ktor Client.
+
+---
+
+## 🌐 API yang Digunakan
+
+### Primary: NewsAPI
+- **URL:** `https://newsapi.org/v2/`
+- **Endpoint:** `top-headlines`, `everything`
+- **Dokumentasi:** [newsapi.org](https://newsapi.org)
+
+### Fallback: JSONPlaceholder + Picsum Photos
+- **URL:** `https://jsonplaceholder.typicode.com/posts`
+- **Gambar:** `https://picsum.photos/seed/{id}/800/400`
+- Digunakan ketika API key NewsAPI belum diset
+
+---
+
+## ✅ Fitur yang Diimplementasikan
+
+| No | Fitur | Status |
+|----|-------|--------|
+| 1 | Fetch berita dari public API (JSONPlaceholder/NewsAPI) | ✅ |
+| 2 | Tampilkan list artikel dengan title, description, image | ✅ |
+| 3 | Detail screen saat artikel di-klik | ✅ |
+| 4 | Refresh functionality (tombol refresh di toolbar) | ✅ |
+| 5 | Loading state (CircularProgressIndicator) | ✅ |
+| 6 | Success state (LazyColumn daftar artikel) | ✅ |
+| 7 | Error state (pesan error + tombol retry) | ✅ |
+| 8 | Repository pattern untuk API calls | ✅ |
+| 9 | Search berita | ✅ (bonus) |
+
+---
+
+## 🏗️ Arsitektur Aplikasi
+
+Aplikasi menggunakan **Repository Pattern** dengan struktur sebagai berikut:
+
+```
+composeApp/src/
+├── commonMain/kotlin/com/example/tugas6_123140075/
+│   ├── App.kt                    # Entry point Composable
+│   ├── data/
+│   │   ├── News.kt               # Data models (Article, Source, NewsResponse)
+│   │   └── NewsRepository.kt     # Repository + Ktor HTTP Client
+│   ├── navigation/
+│   │   └── Screens.kt            # Route definitions
+│   ├── screens/
+│   │   ├── MainScreens.kt        # NavHost & navigation setup
+│   │   └── NewsScreens.kt        # UI: List, Detail, Loading, Error
+│   ├── tema/
+│   │   ├── Color.kt              # Color palette
+│   │   ├── Theme.kt              # MaterialTheme setup
+│   │   └── Type.kt               # Typography
+│   └── viewmodel/
+│       └── NewsViewModel.kt      # ViewModel + StateFlow + UI State
+└── jvmMain/kotlin/com/example/tugas6_123140075/
+    └── main.kt                   # Desktop entry point
+```
+
+### Alur Data:
+```
+UI (Screen) → ViewModel → Repository → Ktor HTTP Client → API
+                ↑                              ↓
+           StateFlow ←←←←←←←← Result<List<Article>>
+```
+
+---
+## 🛠️ Teknologi yang Digunakan
+
+| Teknologi | Versi | Kegunaan |
+|-----------|-------|----------|
+| Kotlin Multiplatform | 2.0.21 | Framework utama |
+| Compose Multiplatform | 1.7.3 | UI Framework |
+| Ktor Client | 3.0.3 | HTTP Client untuk API calls |
+| Kotlinx Serialization | 1.7.3 | JSON parsing |
+| Coil | 3.0.4 | Image loading |
+| Lifecycle ViewModel | 2.8.4 | State management |
+| Navigation Compose | 2.8.0 | Navigasi antar screen |
+| Kotlinx Coroutines | 1.9.0 | Async/concurrent programming |
+
+---
+
+## 🚀 Cara Menjalankan Aplikasi
+
+### Prasyarat
+- Android Studio / IntelliJ IDEA
+- JDK 11 atau lebih baru
+
+### Langkah-langkah
+
+1. Clone repository ini:
+```bash
+2. Buka project di Android Studio
+
+3. Sync Gradle:
+```
+File → Sync Project with Gradle Files
+```
+
+4. Jalankan aplikasi (pilih salah satu):
+
+**Via Android Studio:**
+- Pilih run configuration `composeApp [jvm]` di toolbar
+- Klik tombol ▶️ Run
+
+**Via Terminal:**
+```bash
+# Windows
+$env:JAVA_HOME = "D:\D sementara\androidstudio\jbr"
+.\gradlew :composeApp:run
+
+# Mac/Linux
+./gradlew :composeApp:run
+```
+
+### Menggunakan NewsAPI (Opsional)
+Untuk menggunakan berita sungguhan dari NewsAPI:
+1. Daftar di [newsapi.org](https://newsapi.org) dan dapatkan API key gratis
+2. Buka file `NewsViewModel.kt`
+3. Ganti `"YOUR_API_KEY_HERE"` dengan API key kamu:
+```kotlin
+private val repository: NewsRepository = NewsRepositoryImpl(
+    apiKey = "API_KEY_KAMU_DI_SINI",
+    baseUrl = "https://newsapi.org/v2/"
+)
+```
+
+---
+
+## 📐 Implementasi Teknis
+
+### 1. Ktor HTTP Client Setup
+```kotlin
+private val client = HttpClient(Java) {
+    install(ContentNegotiation) {
+        json(Json { ignoreUnknownKeys = true; isLenient = true })
+    }
+    install(Logging) { level = LogLevel.NONE }
+}
+```
+
+### 2. Repository Pattern
+```kotlin
+interface NewsRepository {
+    suspend fun getTopHeadlines(country: String, category: String): Result<List<Article>>
+    suspend fun searchNews(query: String): Result<List<Article>>
+}
+```
+
+### 3. UI State Management
+```kotlin
+sealed class NewsUiState {
+    data object Loading : NewsUiState()
+    data class Success(val articles: List<Article>) : NewsUiState()
+    data class Error(val message: String) : NewsUiState()
+}
+```
+
+---
+
+## 📹 Video Demo
+
+> Video demo : https://drive.google.com/drive/u/0/folders/1PI_X6S9AR1RoL-z6F8Ybz4SuDfLiKRAG
+
+
+## 📚 Referensi
+
+- [Ktor Client Documentation](https://ktor.io/docs/client.html)
+- [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization)
+- [JSONPlaceholder API](https://jsonplaceholder.typicode.com)
+- [NewsAPI](https://newsapi.org)
+- [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
