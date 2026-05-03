@@ -12,7 +12,7 @@ Institut Teknologi Sumatera (ITERA) | Program Studi Teknik Informatika
 | **NIM** | 123140075 |
 | **Mata Kuliah** | Pengembangan Aplikasi Mobile |
 | **Pertemuan** | 7 — Local Data Storage |
-
+--
 
 ---
 
