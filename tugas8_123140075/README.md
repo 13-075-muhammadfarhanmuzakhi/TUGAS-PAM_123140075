@@ -1,51 +1,63 @@
 # NoteNest - Tugas 8
-## Platform-Specific Features: expect/actual, Koin DI, Platform APIs
 
-**Nama:** Muhammad Farhan Muzakhi  
-**NIM:** 123140075  
-**Kelas:** Pengembangan Aplikasi Mobile RA  
-**Institut:** Institut Teknologi Sumatera
+| | |
+|---|---|
+| **Nama** | Muhammad Farhan Muzakhi |
+| **NIM** | 123140075 |
+| **Mata Kuliah** | Pengembangan Aplikasi Mobile |
+| **Pertemuan** | 8 — Platform-Specific Features |
 
 ---
 
-## Video Demo
+## Deskripsi Aplikasi
 
-[Link Google Drive - Video Demo](https://drive.google.com/drive/folders/1G4dB3LdbNk5XvtRSw_jJ-cwYt3hssG2J?hl=ID)
+**NoteNest** adalah aplikasi catatan desktop berbasis **Kotlin Multiplatform + Compose Desktop** yang dikembangkan dengan menambahkan fitur **platform-specific** menggunakan pattern `expect/actual`, **Dependency Injection** dengan Koin, serta akses ke **Platform APIs** seperti informasi perangkat, status jaringan, dan baterai. Aplikasi berjalan langsung di desktop (Windows/Mac/Linux) tanpa emulator.
+
+---
+
+## Fitur yang Diimplementasikan
+
+| No | Fitur | Status |
+|----|-------|--------|
+| 1 | Koin Dependency Injection untuk seluruh app | ✅ Done |
+| 2 | `DeviceInfo` dengan expect/actual | ✅ Done |
+| 3 | `NetworkMonitor` dengan expect/actual | ✅ Done |
+| 4 | Device Info ditampilkan di Settings screen | ✅ Done |
+| 5 | Network Status Banner di main screen | ✅ Done |
+| 6 | Semua dependency di-inject melalui Koin | ✅ Done |
+| 7 | `BatteryInfo` dengan expect/actual **(BONUS)** | ✅ Done |
 
 ---
 
 ## Screenshot
 
 ### Tampilan Awal
-![Tampilan Awal](screenshots/tampilan_awal.png)
+![Tampilan Awal](tampilan_awal.png)
 
-### Device Info di Settings
-![Device Info](screenshots/device_info.png)
+### Device Info di Settings Screen
+![Device Info](device_info.png)
 
-### Indikator Offline
-![Peringatan Offline](screenshots/peringatan_offline.png)
+### Peringatan Offline (Banner)
+![Peringatan Offline](peringatan_offline.png)
 
-### Banner Offline di Main Screen
-![DI Offline](screenshots/di_offline.png)
+### Tampilan saat Offline
+![DI Offline](di_offline.png)
 
 ---
 
-## Fitur yang Diimplementasikan
+## Video Demo
 
-### 1. Koin Dependency Injection
-Setup Koin di seluruh aplikasi menggunakan `KoinApplication` di `App.kt`. Semua dependency seperti repository, viewmodel, dan platform service di-inject lewat Koin.
+[Klik di sini untuk melihat video demo](https://drive.google.com/drive/folders/1G4dB3LdbNk5XvtRSw_jJ-cwYt3hssG2J?hl=ID)
 
-```kotlin
-val platformModule = module {
-    single { DeviceInfo() }
-    single { NetworkMonitor() }
-    single { BatteryInfo() }
-}
-```
+---
 
-### 2. DeviceInfo (expect/actual)
-Mengambil informasi perangkat seperti hostname, nama OS, versi OS, dan versi JVM menggunakan `System.getProperty()` dan `InetAddress`.
+## Penjelasan Implementasi
 
+### expect/actual Pattern
+
+Pattern ini digunakan agar common code bisa memanggil fungsi platform-specific tanpa tahu detail implementasinya. Deklarasi `expect` ada di `commonMain`, implementasi `actual` ada di `desktopMain`.
+
+**DeviceInfo** — mengambil hostname, nama OS, versi OS, versi app, dan versi JVM:
 ```kotlin
 // commonMain
 expect class DeviceInfo() {
@@ -57,49 +69,115 @@ expect class DeviceInfo() {
 }
 ```
 
-### 3. NetworkMonitor (expect/actual)
-Mengecek koneksi internet dengan cara mencoba socket ke `8.8.8.8:53`. Status koneksi di-observe lewat Flow dengan polling setiap 3 detik.
-
+**NetworkMonitor** — mengecek koneksi internet dan meng-observe perubahannya lewat Flow:
 ```kotlin
-actual fun isConnected(): Boolean {
-    return try {
-        Socket().use { it.connect(InetSocketAddress("8.8.8.8", 53), 1500); true }
-    } catch (e: Exception) { false }
+// commonMain
+expect class NetworkMonitor() {
+    fun isConnected(): Boolean
+    fun observeConnectivity(): Flow<Boolean>
 }
 ```
 
-### 4. NetworkStatusBanner
-Banner merah animasi yang muncul otomatis di bagian atas MainScreen saat koneksi terputus.
+**BatteryInfo (BONUS)** — menampilkan status baterai, mendukung Windows dan Linux:
+```kotlin
+// commonMain
+expect class BatteryInfo() {
+    fun getBatteryLevel(): Int
+    fun isCharging(): Boolean
+    fun getBatteryStatus(): String
+}
+```
 
-### 5. BatteryInfo (expect/actual) - BONUS
-Menampilkan status baterai. Pada desktop/AC power menampilkan `"Desktop/AC Power"`. Mendukung Linux dan Windows.
+---
+
+### Koin Dependency Injection
+
+Semua dependency didaftarkan dalam module Koin dan di-inject lewat `koinInject()` di Composable atau constructor injection di ViewModel.
+
+```kotlin
+val platformModule = module {
+    single { DeviceInfo() }
+    single { NetworkMonitor() }
+    single { BatteryInfo() }
+}
+
+val dataModule = module {
+    single { DatabaseProvider.getDatabase(get()) }
+    single { NoteLocalDataSource(get()) }
+    single { NoteRepository(get()) }
+}
+
+val viewModelModule = module {
+    factory { NotesViewModel(get()) }
+    factory { SettingsViewModel(get()) }
+}
+```
+
+Koin diinisialisasi di `App.kt`:
+```kotlin
+@Composable
+fun App(extraModules: List<Module> = emptyList()) {
+    KoinApplication(application = {
+        modules(appModules + extraModules)
+    }) {
+        AppContent()
+    }
+}
+```
+
+---
+
+### Network Status Banner
+
+Banner merah animasi yang otomatis muncul di atas MainScreen ketika koneksi internet terputus.
+
+```kotlin
+@Composable
+fun NetworkStatusBanner() {
+    val networkMonitor: NetworkMonitor = koinInject()
+    val isConnected by networkMonitor.observeConnectivity()
+        .collectAsState(initial = true)
+
+    AnimatedVisibility(
+        visible = !isConnected,
+        enter = slideInVertically() + fadeIn(),
+        exit = slideOutVertically() + fadeOut()
+    ) {
+        // Red surface with CloudOff icon
+    }
+}
+```
 
 ---
 
 ## Struktur File Baru
 
 ```
-platform/
-├── DeviceInfo.kt              (expect - commonMain)
-├── NetworkMonitor.kt          (expect - commonMain)
-├── BatteryInfo.kt             (expect - commonMain)
-├── DeviceInfo.desktop.kt      (actual - desktopMain)
-├── NetworkMonitor.desktop.kt  (actual - desktopMain)
-└── BatteryInfo.desktop.kt     (actual - desktopMain)
-
-di/
-├── AppModule.kt               (Koin modules - commonMain)
-└── DesktopModule.kt           (Koin desktop - desktopMain)
-
-ui/components/
-└── NetworkStatusBanner.kt
+composeApp/src/
+├── commonMain/
+│   └── kotlin/com/notenest/app/
+│       ├── platform/
+│       │   ├── DeviceInfo.kt
+│       │   ├── NetworkMonitor.kt
+│       │   └── BatteryInfo.kt
+│       ├── di/
+│       │   └── AppModule.kt
+│       └── ui/components/
+│           └── NetworkStatusBanner.kt
+│
+└── desktopMain/
+    └── kotlin/com/notenest/app/
+        ├── platform/
+        │   ├── DeviceInfo.desktop.kt
+        │   ├── NetworkMonitor.desktop.kt
+        │   └── BatteryInfo.desktop.kt
+        └── di/
+            └── DesktopModule.kt
 ```
 
 ---
 
 ## Cara Menjalankan
-
-Pastikan JAVA_HOME sudah di-set ke JBR dari Android Studio, lalu jalankan:
 
 ```
 .\gradlew :composeApp:run --no-configuration-cache
@@ -111,4 +189,4 @@ Pastikan JAVA_HOME sudah di-set ke JBR dari Android Studio, lalu jalankan:
 
 - [Kotlin Multiplatform - expect/actual](https://kotlinlang.org/docs/multiplatform-connect-to-apis.html)
 - [Koin Documentation](https://insert-koin.io/docs/quickstart/kotlin)
-- Materi Pertemuan 8 - Platform-Specific Features
+- Materi Pertemuan 8 - Platform-Specific Features, ITERA 2025/2026
