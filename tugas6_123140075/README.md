@@ -2,7 +2,7 @@
 
 **Nama:** Muhammad Farhan Muzakhi
 **NIM:** 123140075  
-**Mata Kuliah:** Pengembangan Aplikasi Mobile  
+**Mata Kuliah:** Pengembangan Aplikasi Mobile_RA
 
 ---
 
