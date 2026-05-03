@@ -1,0 +1,54 @@
+﻿CREATE TABLE NoteEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT 'general',
+    is_pinned INTEGER NOT NULL DEFAULT 0,
+    color_hex TEXT NOT NULL DEFAULT '#FFFFFF',
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX idx_note_updated ON NoteEntity(updated_at DESC);
+CREATE INDEX idx_note_category ON NoteEntity(category);
+
+selectAll:
+SELECT * FROM NoteEntity ORDER BY is_pinned DESC, updated_at DESC;
+
+selectById:
+SELECT * FROM NoteEntity WHERE id = ?;
+
+selectByCategory:
+SELECT * FROM NoteEntity WHERE category = ? ORDER BY is_pinned DESC, updated_at DESC;
+
+searchNotes:
+SELECT * FROM NoteEntity
+WHERE title LIKE '%' || ? || '%' OR content LIKE '%' || ? || '%'
+ORDER BY is_pinned DESC, updated_at DESC;
+
+insertNote:
+INSERT INTO NoteEntity(id, title, content, category, is_pinned, color_hex, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+updateNote:
+UPDATE NoteEntity
+SET title = ?, content = ?, category = ?, is_pinned = ?, color_hex = ?, updated_at = ?
+WHERE id = ?;
+
+deleteNote:
+DELETE FROM NoteEntity WHERE id = ?;
+
+deleteAllNotes:
+DELETE FROM NoteEntity;
+
+countNotes:
+SELECT COUNT(*) FROM NoteEntity;
+
+countByCategory:
+SELECT COUNT(*) FROM NoteEntity WHERE category = ?;
+
+selectPinned:
+SELECT * FROM NoteEntity WHERE is_pinned = 1 ORDER BY updated_at DESC;
+
+togglePin:
+UPDATE NoteEntity SET is_pinned = ?, updated_at = ? WHERE id = ?;
