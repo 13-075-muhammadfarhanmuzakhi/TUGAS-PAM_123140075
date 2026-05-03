@@ -1,95 +1,114 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM), Server.
+# NoteNest - Tugas 8
+## Platform-Specific Features: expect/actual, Koin DI, Platform APIs
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
-
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
-
-* [/server](./server/src/main/kotlin) is for the Ktor server application.
-
-* [/shared](./shared/src) is for the code that will be shared between all targets in the project.
-  The most important subfolder is [commonMain](./shared/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
-
-### Build and Run Android Application
-
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
-
-### Build and Run Desktop (JVM) Application
-
-To build and run the development version of the desktop app, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:run
-  ```
-
-### Build and Run Server
-
-To build and run the development version of the server, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :server:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :server:run
-  ```
-
-### Build and Run Web Application
-
-To build and run the development version of the web app, use the run configuration from the run widget
-in your IDE's toolbar or run it directly from the terminal:
-- for the Wasm target (faster, modern browsers):
-  - on macOS/Linux
-    ```shell
-    ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
-    ```
-  - on Windows
-    ```shell
-    .\gradlew.bat :composeApp:wasmJsBrowserDevelopmentRun
-    ```
-- for the JS target (slower, supports older browsers):
-  - on macOS/Linux
-    ```shell
-    ./gradlew :composeApp:jsBrowserDevelopmentRun
-    ```
-  - on Windows
-    ```shell
-    .\gradlew.bat :composeApp:jsBrowserDevelopmentRun
-    ```
-
-### Build and Run iOS Application
-
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+**Nama:** Muhammad Farhan Muzakhi  
+**NIM:** 123140075  
+**Kelas:** Pengembangan Aplikasi Mobile RA  
+**Institut:** Institut Teknologi Sumatera
 
 ---
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
-[Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform/#compose-multiplatform),
-[Kotlin/Wasm](https://kotl.in/wasm/)…
+## Video Demo
 
-We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
-If you face any issues, please report them on [YouTrack](https://youtrack.jetbrains.com/newIssue?project=CMP).
+[Link Google Drive - Video Demo](https://drive.google.com/drive/folders/1G4dB3LdbNk5XvtRSw_jJ-cwYt3hssG2J?hl=ID)
+
+---
+
+## Screenshot
+
+### Tampilan Awal
+![Tampilan Awal](screenshots/tampilan_awal.png)
+
+### Device Info di Settings
+![Device Info](screenshots/device_info.png)
+
+### Indikator Offline
+![Peringatan Offline](screenshots/peringatan_offline.png)
+
+### Banner Offline di Main Screen
+![DI Offline](screenshots/di_offline.png)
+
+---
+
+## Fitur yang Diimplementasikan
+
+### 1. Koin Dependency Injection
+Setup Koin di seluruh aplikasi menggunakan `KoinApplication` di `App.kt`. Semua dependency seperti repository, viewmodel, dan platform service di-inject lewat Koin.
+
+```kotlin
+val platformModule = module {
+    single { DeviceInfo() }
+    single { NetworkMonitor() }
+    single { BatteryInfo() }
+}
+```
+
+### 2. DeviceInfo (expect/actual)
+Mengambil informasi perangkat seperti hostname, nama OS, versi OS, dan versi JVM menggunakan `System.getProperty()` dan `InetAddress`.
+
+```kotlin
+// commonMain
+expect class DeviceInfo() {
+    fun getDeviceName(): String
+    fun getOsName(): String
+    fun getOsVersion(): String
+    fun getAppVersion(): String
+    fun getJvmVersion(): String
+}
+```
+
+### 3. NetworkMonitor (expect/actual)
+Mengecek koneksi internet dengan cara mencoba socket ke `8.8.8.8:53`. Status koneksi di-observe lewat Flow dengan polling setiap 3 detik.
+
+```kotlin
+actual fun isConnected(): Boolean {
+    return try {
+        Socket().use { it.connect(InetSocketAddress("8.8.8.8", 53), 1500); true }
+    } catch (e: Exception) { false }
+}
+```
+
+### 4. NetworkStatusBanner
+Banner merah animasi yang muncul otomatis di bagian atas MainScreen saat koneksi terputus.
+
+### 5. BatteryInfo (expect/actual) - BONUS
+Menampilkan status baterai. Pada desktop/AC power menampilkan `"Desktop/AC Power"`. Mendukung Linux dan Windows.
+
+---
+
+## Struktur File Baru
+
+```
+platform/
+├── DeviceInfo.kt              (expect - commonMain)
+├── NetworkMonitor.kt          (expect - commonMain)
+├── BatteryInfo.kt             (expect - commonMain)
+├── DeviceInfo.desktop.kt      (actual - desktopMain)
+├── NetworkMonitor.desktop.kt  (actual - desktopMain)
+└── BatteryInfo.desktop.kt     (actual - desktopMain)
+
+di/
+├── AppModule.kt               (Koin modules - commonMain)
+└── DesktopModule.kt           (Koin desktop - desktopMain)
+
+ui/components/
+└── NetworkStatusBanner.kt
+```
+
+---
+
+## Cara Menjalankan
+
+Pastikan JAVA_HOME sudah di-set ke JBR dari Android Studio, lalu jalankan:
+
+```
+.\gradlew :composeApp:run --no-configuration-cache
+```
+
+---
+
+## Referensi
+
+- [Kotlin Multiplatform - expect/actual](https://kotlinlang.org/docs/multiplatform-connect-to-apis.html)
+- [Koin Documentation](https://insert-koin.io/docs/quickstart/kotlin)
+- Materi Pertemuan 8 - Platform-Specific Features
