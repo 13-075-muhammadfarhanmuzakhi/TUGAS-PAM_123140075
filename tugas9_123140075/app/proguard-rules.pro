@@ -1,0 +1,3 @@
+﻿-keep class com.aiassistant.app.** { *; }
+-keep class io.ktor.** { *; }
+-keep class kotlinx.serialization.** { *; }

@@ -1,0 +1,4 @@
+com.aiassistant.app.test.app-androidTest-0 C:\Users\A s u s\AndroidStudioProjects\AIAssistantApp\app\build\generated\res\resValues\androidTest\debug
+com.aiassistant.app.test.app-mergeDebugAndroidTestResources-1 C:\Users\A s u s\AndroidStudioProjects\AIAssistantApp\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
+com.aiassistant.app.test.app-mergeDebugAndroidTestResources-2 C:\Users\A s u s\AndroidStudioProjects\AIAssistantApp\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
+com.aiassistant.app.test.app-debugAndroidTest-3 C:\Users\A s u s\AndroidStudioProjects\AIAssistantApp\app\build\intermediates\merged_res\debugAndroidTest\mergeDebugAndroidTestResources
