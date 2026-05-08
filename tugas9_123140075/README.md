@@ -52,23 +52,23 @@
 
 ## Arsitektur
 
-\\\
+```n
 app/
 ├── data/
-│   ├── models/         # Data class (ChatMessage, dll)
-│   ├── network/        # HttpClientFactory
-│   ├── preferences/    # AppPreferences (DataStore)
-│   └── repository/     # GroqRepository
+│   ├── models/       -> Data class (ChatMessage, dll)
+│   ├── network/      -> HttpClientFactory
+│   ├── preferences/  -> AppPreferences (DataStore)
+│   └── repository/   -> GroqRepository
 ├── ui/
-│   ├── screens/        # ChatScreen, HomeScreen, SettingsScreen
-│   ├── viewmodel/      # ChatViewModel
-│   └── theme/          # Theme, Colors
-└── navigation/         # AppNavigation
-\\\
+│   ├── screens/      -> ChatScreen, HomeScreen, SettingsScreen
+│   ├── viewmodel/    -> ChatViewModel
+│   └── theme/        -> Theme, Colors
+└── navigation/       -> AppNavigation
 
+```n
 ---
 
-## Setup & Cara Menjalankan
+## Setup dan Cara Menjalankan
 
 ### Prasyarat
 - Android Studio Hedgehog atau lebih baru
@@ -78,20 +78,15 @@ app/
 ### Langkah Instalasi
 
 1. Clone repository ini
-\\\ash
-git clone https://github.com/13-075-muhammadfarhanmuzakhi/TUGAS-PAM_123140075.git
-\\\
+2. Buka folder tugas9_123140075 di Android Studio
+3. Buat file local.properties dan tambahkan:
 
-2. Buka folder \	ugas9_123140075\ di Android Studio
-
-3. Buat file \local.properties\ dan tambahkan API key
-\\\
+```n
 sdk.dir=YOUR_ANDROID_SDK_PATH
 GROQ_API_KEY=YOUR_GROQ_API_KEY
-\\\
 
-4. Dapatkan API key gratis di [console.groq.com](https://console.groq.com)
-
+```n
+4. Dapatkan API key gratis di https://console.groq.com
 5. Build dan jalankan aplikasi
 
 ---
@@ -101,4 +96,4 @@ GROQ_API_KEY=YOUR_GROQ_API_KEY
 - [Groq API Documentation](https://console.groq.com/docs)
 - [Ktor Client Documentation](https://ktor.io/docs/client-create-new-application.html)
 - [Jetpack Compose Documentation](https://developer.android.com/jetpack/compose)
-- [Materi Pertemuan 9 - Integrasi AI API (ITERA)](https://itera.ac.id)
+- [Materi Pertemuan 9 - Integrasi AI API ITERA](https://itera.ac.id)
