@@ -11,6 +11,12 @@
 
 ---
 
+## Demo Aplikasi
+
+🎬 **[Klik di sini untuk melihat Video Demo](https://drive.google.com/drive/folders/1buuleI5_migL43UTiKwnj2Ho7b6EVOph?hl=ID)**
+
+---
+
 ## Deskripsi Aplikasi
 
 **AI Assistant App** adalah aplikasi mobile Android yang mengintegrasikan kecerdasan buatan (AI) melalui Groq API. Aplikasi ini memungkinkan pengguna untuk berinteraksi dengan AI secara real-time melalui antarmuka chat yang modern dan responsif.
@@ -87,12 +93,6 @@ GROQ_API_KEY=YOUR_GROQ_API_KEY
 4. Dapatkan API key gratis di [console.groq.com](https://console.groq.com)
 
 5. Build dan jalankan aplikasi
-
----
-
-## Screenshot
-
-> Jalankan aplikasi dan masukkan API key Groq di halaman Settings untuk mulai menggunakan AI Assistant.
 
 ---
 
