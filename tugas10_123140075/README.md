@@ -1,94 +1,149 @@
-# Notes App - Week 10: Koin DI + Testing
+# 📝 NotesApp — Tugas Praktikum Minggu 10
+**Nama:** Muhammad Farhan Muzakhi  
+**NIM:** 123140075  
+**Mata Kuliah:** Pengembangan Aplikasi Mobile  
+**Topik:** Testing dan Dependency Injection  
 
-## Struktur Project
+---
+
+## 📱 Demo Aplikasi
+
+🎥 **Video Demo (45 detik):** [Klik di sini untuk menonton](https://drive.google.com/drive/folders/1PiZKZHsrEqiRNeI_4KSujU9CJjG--4rr?usp=sharing)
+
+---
+
+## ✅ Checklist Tugas
+
+| Komponen | Bobot | Status |
+|---|---|---|
+| Koin DI Setup (2+ modules) | 20% | ✅ Done |
+| Unit Test NoteRepository (5+ cases) | 20% | ✅ Done |
+| Unit Test NotesViewModel + MockK (4+ cases) | 20% | ✅ Done |
+| Flow Test dengan Turbine (2+ cases) | 15% | ✅ Done |
+| UI Test NotesScreen (3+ cases) | 15% | ✅ Done |
+| Code Quality (AAA pattern) | 10% | ✅ Done |
+
+---
+
+## 🏗️ Struktur Project
 
 ```
 composeApp/src/
 ├── commonMain/kotlin/com/notes/
-│   ├── data/repository/        # NoteRepository interface & impl
-│   ├── di/                     # Koin modules (dataModule, viewModelModule)
-│   ├── domain/model/           # Note data class
+│   ├── data/repository/         # NoteRepository, NoteRepositoryImpl
+│   ├── di/                      # AppModule, KoinInit
+│   ├── domain/model/            # Note
 │   └── presentation/
-│       ├── screen/             # NotesScreen composable + TestTags
-│       └── viewmodel/          # NotesViewModel + NotesUiState
+│       ├── screen/              # NotesScreen, TestTags
+│       └── viewmodel/           # NotesViewModel, NotesUiState
+│
 ├── commonTest/kotlin/com/notes/
-│   ├── data/NoteRepositoryTest.kt   # 6 repository tests
-│   ├── di/KoinModuleTest.kt         # Koin verification tests
+│   ├── data/                    # NoteRepositoryTest (7 cases)
+│   ├── di/                      # KoinModuleTest (2 cases)
 │   └── presentation/
-│       ├── NotesViewModelTest.kt    # 5 ViewModel tests (MockK)
-│       └── NotesFlowTest.kt         # 3 Flow tests (Turbine)
-└── androidInstrumentedTest/
-    └── NotesScreenTest.kt           # 5 UI tests (Compose Test)
-```
-
-## Daftar Test Cases
-
-### NoteRepositoryTest (6 test cases)
-| No | Test | Keterangan |
-|----|------|-----------|
-| 1 | getAllNotes emits empty list initially | Initial state |
-| 2 | insertNote adds note and list is updated | Insert operation |
-| 3 | deleteNote removes note from repository | Delete operation |
-| 4 | updateNote modifies existing note correctly | Update operation |
-| 5 | getNoteById returns correct note by id | Query by ID |
-| 6 | deleteAllNotes removes all notes | Bulk delete |
-
-### NotesViewModelTest (5 test cases dengan MockK)
-| No | Test | Keterangan |
-|----|------|-----------|
-| 1 | initial state is Loading then Success | State flow |
-| 2 | addNote calls repository insertNote | Repository call |
-| 3 | addNote with blank title sets Error state | Validation |
-| 4 | deleteNote calls repository with correct id | Delete verification |
-| 5 | updateNote calls repository updateNote | Update verification |
-
-### NotesFlowTest (3 test cases dengan Turbine)
-| No | Test | Keterangan |
-|----|------|-----------|
-| 1 | flow emits updated list on each insertion | Insert flow |
-| 2 | flow emits correct state after delete | Delete flow |
-| 3 | flow emits updated note after update | Update flow |
-
-### NotesScreenTest (5 UI test cases dengan Compose Test)
-| No | Test | Keterangan |
-|----|------|-----------|
-| 1 | showsEmptyState initially | Empty state UI |
-| 2 | addNote showsNoteInList | Add interaction |
-| 3 | addButton isDisplayedAndEnabled | Button state |
-| 4 | titleInput acceptsTextInput | Input interaction |
-| 5 | multipleNotes displayedInList | Multiple items |
-
-### KoinModuleTest
-| No | Test | Keterangan |
-|----|------|-----------|
-| 1 | all koin modules can be loaded | Module loading |
-| 2 | koin dependency graph is valid | checkModules() |
-
-## Cara Menjalankan Tests
-
-```bash
-# Unit tests
-./gradlew :composeApp:testDebugUnitTest
-
-# UI tests (butuh emulator/device)
-./gradlew :composeApp:connectedAndroidTest
-
-# Coverage report (min 60%)
-./gradlew :composeApp:koverHtmlReportDebug
-# Output: composeApp/build/reports/kover/html/index.html
-```
-
-## Koin DI Setup
-
-```kotlin
-// 2 modules: dataModule + viewModelModule
-val dataModule = module {
-    single<NoteRepository> { NoteRepositoryImpl() }
-}
-val viewModelModule = module {
-    viewModel { NotesViewModel(get()) }
-}
+│       ├── NotesFlowTest        # Flow tests Turbine (3 cases)
+│       └── NotesViewModelTest   # ViewModel + MockK (6 cases)
+│
+└── androidInstrumentedTest/kotlin/com/notes/
+    └── NotesScreenTest          # UI tests Compose (5 cases)
 ```
 
 ---
-*Tugas Praktikum Minggu 10 - Pengembangan Aplikasi Mobile - ITERA*
+
+## 🧪 Daftar Test Cases
+
+### 1. NoteRepositoryTest (commonTest) — 7 test cases
+| # | Test Case | Deskripsi |
+|---|---|---|
+| 1 | `getAllNotes_emitsEmptyListInitially` | Verifikasi list kosong saat pertama kali |
+| 2 | `insertNote_addsNoteAndListIsUpdated` | Insert note dan cek list terupdate |
+| 3 | `deleteNote_removesNoteFromRepository` | Hapus note dan verifikasi hilang dari list |
+| 4 | `updateNote_modifiesExistingNoteCorrectly` | Update note dan verifikasi perubahan |
+| 5 | `getNoteById_returnsCorrectNoteById` | Cari note by ID dan verifikasi benar |
+| 6 | `deleteAllNotes_removesAllNotes` | Hapus semua note sekaligus |
+| 7 | `getNoteById_returnsNullForNonExistingId` | Cari ID tidak ada, harus return null |
+
+### 2. NotesViewModelTest (commonTest) — 6 test cases
+| # | Test Case | Deskripsi |
+|---|---|---|
+| 1 | `initial state emits Loading then Success` | State awal Loading lalu Success |
+| 2 | `addNote calls repository insertNote` | Verifikasi MockK: insertNote dipanggil |
+| 3 | `deleteNote calls repository with correct id` | Verifikasi MockK: deleteNote dipanggil |
+| 4 | `when repository throws, state should be Error` | Error handling dari repository |
+| 5 | `success state with empty list` | Success state dengan notes kosong |
+| 6 | `deleteNote called only once per invocation` | Verifikasi tidak ada double call |
+
+### 3. NotesFlowTest (commonTest) — 3 test cases
+| # | Test Case | Deskripsi |
+|---|---|---|
+| 1 | `flow emits updated list on each note insertion` | Flow reaktif saat insert |
+| 2 | `flow emits correct state after delete operation` | Flow reaktif saat delete |
+| 3 | `flow emits updated note after update operation` | Flow reaktif saat update |
+
+### 4. KoinModuleTest (commonTest) — 2 test cases
+| # | Test Case | Deskripsi |
+|---|---|---|
+| 1 | `verify all koin modules can be loaded` | Semua module bisa diload tanpa error |
+| 2 | `verify koin dependency graph is valid` | Graph dependency valid |
+
+### 5. NotesScreenTest (androidInstrumentedTest) — 5 test cases
+| # | Test Case | Deskripsi |
+|---|---|---|
+| 1 | `notesScreen_showsEmptyState_initially` | Empty state tampil saat pertama buka |
+| 2 | `notesScreen_addNote_showsNoteInList` | Note baru muncul di list setelah ditambah |
+| 3 | `notesScreen_addButton_isDisplayedAndEnabled` | Tombol + tampil dan bisa diklik |
+| 4 | `notesScreen_titleInput_acceptsTextInput` | Input judul menerima teks |
+| 5 | `notesScreen_multipleNotes_displayedInList` | Multiple notes tampil di list |
+
+---
+
+## 🔧 Dependency Injection (Koin)
+
+```kotlin
+// dataModule — NoteRepository sebagai singleton
+val dataModule = module {
+    single<NoteRepository> { NoteRepositoryImpl() }
+}
+
+// viewModelModule — NotesViewModel dengan DI
+val viewModelModule = module {
+    viewModel { NotesViewModel(get()) }
+}
+
+val appModules = listOf(dataModule, viewModelModule)
+```
+
+---
+
+## ▶️ Cara Menjalankan Test
+
+**Unit Test:**
+```bash
+.\gradlew :composeApp:testDebugUnitTest
+```
+
+**UI Test (butuh emulator menyala):**
+```bash
+.\gradlew :composeApp:connectedDebugAndroidTest
+```
+
+---
+
+## 📊 Hasil Test
+
+### Unit Test
+```
+BUILD SUCCESSFUL
+16 tests completed, 16 passed
+```
+
+## 🛠️ Tech Stack
+
+- **Kotlin Multiplatform (KMP)**
+- **Jetpack Compose** — UI
+- **Koin** — Dependency Injection
+- **kotlin.test** — Unit Testing
+- **MockK** — Mocking library
+- **Turbine** — Flow testing
+- **Compose UI Test** — UI/Instrumented testing
+- **Kover** — Code coverage
